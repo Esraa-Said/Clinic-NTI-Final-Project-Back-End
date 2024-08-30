@@ -1,5 +1,6 @@
 const Patient = require("../models/Patient");
 const Doctor = require("../models/Doctor");
+const Appointment = require("../models/Appointments");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const uploadPhoto = require("../config/multer");
@@ -157,17 +158,24 @@ exports.changePatientPassword = async (req, res) => {
   }
 };
 
+
 exports.deletePatient = async (req, res) => {
   try {
+    // Find and delete the patient
     const patient = await Patient.findByIdAndDelete(req.params.id);
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
     }
-    res.status(200).json({ message: "Patient deleted" });
+
+    // Delete all appointments associated with this patient
+    await Appointment.deleteMany({ patientId: patient._id });
+
+    res.status(200).json({ message: "Patient and associated appointments deleted" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 exports.getPatientCount = async (req, res) => {
   try {

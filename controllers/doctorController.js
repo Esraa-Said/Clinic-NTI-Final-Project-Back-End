@@ -1,5 +1,6 @@
 const Doctor = require("../models/Doctor");
 const Department = require("../models/Departments");
+const Appointment = require("../models/Appointments");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -155,11 +156,16 @@ exports.changeDoctorPassword = async (req, res) => {
 
 exports.deleteDoctor = async (req, res) => {
   try {
+    // Find and delete the doctor
     const doctor = await Doctor.findByIdAndDelete(req.params.id);
     if (!doctor) {
       return res.status(404).json({ error: "Doctor not found" });
     }
-    res.json({ message: "Doctor deleted" });
+
+    // Delete all appointments associated with this doctor
+    await Appointment.deleteMany({ doctorId: doctor._id });
+
+    res.status(200).json({ message: "Doctor and associated appointments deleted" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
