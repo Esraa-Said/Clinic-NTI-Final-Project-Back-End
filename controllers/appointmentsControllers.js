@@ -200,7 +200,7 @@ exports.getDoctorAppointmentCount = async (req, res) => {
   try {
     const doctorId = req.params.doctorId;
 
-    const appointmentCount = await Appointment.countDocuments({ doctor: doctorId });
+    const appointmentCount = await Appointment.countDocuments({ doctorId: doctorId });
 
     res.status(200).json({ count: appointmentCount });
   } catch (error) {
